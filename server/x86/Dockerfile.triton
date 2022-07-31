@@ -4,4 +4,12 @@ RUN pip3 install -q \
     min-dalle==0.4 \
     scipy==1.8.1
 
+# The hack below is to ensure that the torch library used
+# uses a CUDA version > 11. This is important because by default, it will use CUDA 10.3
+# which is incompatible with more modern GPUs (RTX 3090 in my case)
+RUN ln -s /usr/local/bin/pip3 /usr/bin/pip3.8
+RUN pip3 uninstall -y torch
+RUN pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
+RUN echo $(python3 -c "import torch; print(torch.version.cuda)")
+
 WORKDIR /opt/tritonserver/bin
