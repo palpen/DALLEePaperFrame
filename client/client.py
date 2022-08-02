@@ -1,16 +1,26 @@
+import argparse
 import io
 import os.path
 import random
 import time
 import threading
+
 import requests
 import inky
-import argparse
+import yaml
+import tweepy
 from PIL import Image
 
 from frame_composer import FrameComposer
 from buttons import set_button_function, wait_forever_for_button_presses
 from record_audio import record_audio
+
+
+with open("../config.yml", "r") as stream:
+	try:
+		configs = yaml.safe_load(stream)
+	except yaml.YAMLError as exc:
+		print(exc)
 
 display = inky.auto()
 width, height = display.resolution
@@ -41,6 +51,15 @@ pre_prompts = ['',
                'a sculpture of',
                'a drawing of',
                '']
+
+twitter_api_keys = configs["twitter_api_keys"]
+client = tweepy.Client(
+	bearer_token=twitter_api_keys["bearer_token"],
+	consumer_key=twitter_api_keys["consumer_key"],
+	consumer_secret=twitter_api_keys["consumer_secret"],
+	access_token=twitter_api_keys["access_token_key"],
+	access_token_secret=twitter_api_keys["access_token_secret"]
+)
 
 
 def generate_sample_prompt():
@@ -112,6 +131,18 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     GENERATOR_TEXT_PROMPT = generate_sample_prompt()
+
+
+
+
+
+    # TODO: Implement this button action
+    def display_new_generated_image_from_tweet(_=None):
+        pass
+
+
+
+
 
 
     def display_new_generated_image_w_same_prompt(_=None):
