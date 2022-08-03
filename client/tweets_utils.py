@@ -33,4 +33,3 @@ def retrieve_most_recent_text_prompt(client: tweepy.client.Client, configs: Dict
 		raise ValueError("There are no text prompts containing the trigger hashtag #genimg")
 	text_prompts = clean_up_tweets(raw_tweets)
 	return text_prompts[0]
-

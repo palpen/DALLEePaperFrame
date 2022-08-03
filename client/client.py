@@ -11,6 +11,7 @@ import yaml
 import tweepy
 from PIL import Image
 
+import tweets_utils
 from frame_composer import FrameComposer
 from buttons import set_button_function, wait_forever_for_button_presses
 from record_audio import record_audio
@@ -133,16 +134,28 @@ if __name__ == '__main__':
     GENERATOR_TEXT_PROMPT = generate_sample_prompt()
 
 
-
-
-
-    # TODO: Implement this button action
     def display_new_generated_image_from_tweet(_=None):
-        pass
 
+        global last_creation_time
 
+        if time.time() - last_creation_time > minimum_time_between_image_generations:  # debounce the button press
+            global GENERATOR_TEXT_PROMPT
 
+            print("Generating image from tweet...")
+            # get text prompt from tweet
+            GENERATOR_TEXT_PROMPT = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
+            print(f"Text prompt from tweet: {GENERATOR_TEXT_PROMPT}")
 
+            # generate and display a new image
+            try:
+                generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
+                save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+            except Exception as e:
+                print("A problem occurred: ", e)
+                generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
+            display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
+
+            last_creation_time = time.time()
 
 
     def display_new_generated_image_w_same_prompt(_=None):
@@ -220,9 +233,10 @@ if __name__ == '__main__':
 
 
     # Set up the buttons
-    set_button_function('A', display_new_generated_image_w_same_prompt)
+    set_button_function('A', display_new_generated_image_from_tweet)
     set_button_function('B', display_new_generated_image_w_new_prompt)
-    set_button_function('C', display_new_generated_image_w_recorded_prompt)
+    set_button_function('C', display_new_generated_image_w_same_prompt)
+    #set_button_function('C', display_new_generated_image_w_recorded_prompt)
     set_button_function('D', toggle_auto_image_generation)
 
     # set display to auto create a new image every N hours
