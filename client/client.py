@@ -158,6 +158,7 @@ if __name__ == '__main__':
                 save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
 
                 # upload image as a reply to original text prompt tweet
+                print("Uploading image to Twitter")
                 api.update_status_with_media(
                     "",
                     filename=os.path.join(
