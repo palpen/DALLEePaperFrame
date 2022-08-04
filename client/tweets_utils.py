@@ -6,6 +6,7 @@ that will be used as an input in the api call to the server hosting DALL-E
 import re
 from typing import Dict
 from typing import List
+from typing import Tuple
 
 import tweepy
 import yaml
@@ -14,17 +15,20 @@ import yaml
 def retrieve_tweets_containing_text_prompt(
 	client: tweepy.client.Client,
 	configs: Dict[str, str]
-) -> List[str]:
+) -> List[Tuple[int, str]]:
 	user_tweets = client.get_users_tweets(id=configs["user_id"], max_results=20)
-	return [t.text for t in user_tweets.data if '#genimg' in t.text]
+	return [(t.id, t.text) for t in user_tweets.data if '#genimg' in t.text]
 
 
 def remove_hashtags_and_mentions_from_tweet(tweet: str) -> str:
 	return re.sub("#[A-Za-z0-9_]+", "", re.sub("@[A-Za-z0-9_]+", "", tweet))
 
 
-def clean_up_tweets(tweets: List[str]) -> List[str]:
-	return [remove_hashtags_and_mentions_from_tweet(tweet).strip() for tweet in tweets]
+def clean_up_tweets(tweets: List[str]) -> List[Tuple[int, str]]:
+	return [
+        (tweet[0], remove_hashtags_and_mentions_from_tweet(tweet[1]).strip())
+        for tweet in tweets
+	]
 
 
 def retrieve_most_recent_text_prompt(client: tweepy.client.Client, configs: Dict[str, str]):

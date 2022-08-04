@@ -53,7 +53,9 @@ pre_prompts = ['',
                'a drawing of',
                '']
 
+# Setup Twitter API access
 twitter_api_keys = configs["twitter_api_keys"]
+# Twitter API v2
 client = tweepy.Client(
 	bearer_token=twitter_api_keys["bearer_token"],
 	consumer_key=twitter_api_keys["consumer_key"],
@@ -61,6 +63,10 @@ client = tweepy.Client(
 	access_token=twitter_api_keys["access_token_key"],
 	access_token_secret=twitter_api_keys["access_token_secret"]
 )
+# Twitter API v1 (needed for uploading media as a tweet)
+auth = tweepy.OAuthHandler(twitter_api_keys["consumer_key"], twitter_api_keys["consumer_secret"])
+auth.set_access_token(twitter_api_keys["access_token_key"], twitter_api_keys["access_token_secret"])
+api = tweepy.API(auth)
 
 
 def generate_sample_prompt():
@@ -143,8 +149,8 @@ if __name__ == '__main__':
 
             print("Generating image from tweet...")
             # get text prompt from tweet
-            GENERATOR_TEXT_PROMPT = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
-            print(f"Text prompt from tweet: {GENERATOR_TEXT_PROMPT}")
+            tweet_id, GENERATOR_TEXT_PROMPT = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
+            print(f"Text prompt from tweet id {tweet_id}: {GENERATOR_TEXT_PROMPT}")
 
             # generate and display a new image
             try:
