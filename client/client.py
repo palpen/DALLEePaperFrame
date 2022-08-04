@@ -152,6 +152,12 @@ if __name__ == '__main__':
             tweet_id, GENERATOR_TEXT_PROMPT = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
             print(f"Text prompt from tweet id {tweet_id}: {GENERATOR_TEXT_PROMPT}")
 
+            api.update_status_with_media(
+                "",
+                filename=os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png'),
+                in_reply_to_status_id=tweet_id
+            )
+
             # generate and display a new image
             try:
                 generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
