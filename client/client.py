@@ -184,6 +184,14 @@ if __name__ == '__main__':
             try:
                 generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
                 save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+
+                print("Uploading image to Twitter")
+                api.update_status_with_media(
+                    GENERATOR_TEXT_PROMPT,
+                    filename=os.path.join(
+                        saved_image_folder,
+                        GENERATOR_TEXT_PROMPT.replace(' ', '_') + '.png'),
+                )
             except Exception as e:
                 print("A problem occurred: ", e)
                 generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
@@ -204,6 +212,14 @@ if __name__ == '__main__':
             try:
                 generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
                 save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+
+                print("Uploading image to Twitter")
+                api.update_status_with_media(
+                    GENERATOR_TEXT_PROMPT,
+                    filename=os.path.join(
+                        saved_image_folder,
+                        GENERATOR_TEXT_PROMPT.replace(' ', '_') + '.png'),
+                )
             except Exception as e:
                 print("A problem occurred: ", e)
                 generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
