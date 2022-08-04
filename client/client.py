@@ -160,7 +160,9 @@ if __name__ == '__main__':
                 # upload image as a reply to original text prompt tweet
                 api.update_status_with_media(
                     "",
-                    filename=os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png'),
+                    filename=os.path.join(
+                        saved_image_folder,
+                        GENERATOR_TEXT_PROMPT.replace(' ', '_') + '.png'),
                     in_reply_to_status_id=tweet_id
                 )
             except Exception as e:
