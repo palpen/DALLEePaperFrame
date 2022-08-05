@@ -11,13 +11,15 @@ from typing import Tuple
 import tweepy
 import yaml
 
+TEXT_PROMPT_HASHTAG = "#dalle"
+
 
 def retrieve_tweets_containing_text_prompt(
 	client: tweepy.client.Client,
 	configs: Dict[str, str]
 ) -> List[Tuple[int, str]]:
 	user_tweets = client.get_users_tweets(id=configs["user_id"], max_results=20)
-	return [(t.id, t.text) for t in user_tweets.data if '#genimg' in t.text]
+	return [(t.id, t.text) for t in user_tweets.data if TEXT_PROMPT_HASHTAG in t.text]
 
 
 def remove_hashtags_and_mentions_from_tweet(tweet: str) -> str:
