@@ -281,7 +281,7 @@ if __name__ == '__main__':
         threading.Timer(automated_image_generation_time, image_generation_timer).start()
 
 
-    def check_recent_tweets_and_generate_image_if_new()
+    def check_recent_tweets_and_generate_image_if_new():
         """Checks if the most recent tweet is a text prompt and if an image
         is yet to be generated for it. If both previous statements are true,
         then generate an image for it.
