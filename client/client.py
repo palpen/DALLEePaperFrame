@@ -297,7 +297,7 @@ if __name__ == '__main__':
             text_prompt.replace(' ', '_') + '.png'
         )
         if (
-            not os.path.isfile()
+            not os.path.isfile(image_filename)
             and time.time() - last_creation_time > minimum_time_between_image_generations
         ):
             print("Generating image from a new tweet!")
