@@ -294,7 +294,7 @@ if __name__ == '__main__':
 
         image_filename = os.path.join(
             saved_image_folder,
-            text_prompt.replace(' ', '_') + '.png'),
+            text_prompt.replace(' ', '_') + '.png'
         )
         if (
             not os.path.isfile()
