@@ -271,15 +271,43 @@ if __name__ == '__main__':
     #set_button_function('C', display_new_generated_image_w_recorded_prompt)
     set_button_function('D', toggle_auto_image_generation)
 
+
     # set display to auto create a new image every N hours
     def image_generation_timer():
         if automated_image_generation and time.time() - last_creation_time > minimum_time_between_image_generations:
             print('Automated image generation started')
             random.choice([display_new_generated_image_w_same_prompt, display_new_generated_image_w_new_prompt])()
+        # Runs image_generation_timer after automated_image_generation_time has elapsed
         threading.Timer(automated_image_generation_time, image_generation_timer).start()
 
 
+    def check_recent_tweets_and_generate_image_if_new()
+        """Checks if the most recent tweet is a text prompt and if an image
+        is yet to be generated for it. If both previous statements are true,
+        then generate an image for it.
+        """
+
+        # Get most recent tweet containing text prompt hashtag
+        _, text_prompt = tweets_utils.retrieve_most_recent_text_prompt(
+            client=client, configs=configs
+        )
+
+        image_filename = os.path.join(
+            saved_image_folder,
+            text_prompt.replace(' ', '_') + '.png'),
+        )
+        if (
+            not os.path.isfile()
+            and time.time() - last_creation_time > minimum_time_between_image_generations
+        ):
+            print("Generating image from a new tweet!")
+            display_new_generated_image_from_tweet()
+        threading.Timer(5, check_recent_tweets_and_generate_image_if_new).start()
+
+
     image_generation_timer()
+    check_recent_tweets_and_generate_image_if_new()
+
 
     # Wait forever for button presses (ie while true)
     print("Setup complete. Waiting for button presses...")
