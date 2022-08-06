@@ -33,6 +33,7 @@ minimum_time_between_image_generations = 5
 
 automated_image_generation = True
 automated_image_generation_time = 60 * 60 * 1  # 1 hours
+TIME_INTERVAL_CHECK_TWITTER = 5  # How frequently should the client check Twitter for new text prompts (seconds)
 
 saved_image_folder = 'saved_images'
 if not os.path.exists(saved_image_folder):
@@ -302,7 +303,7 @@ if __name__ == '__main__':
         ):
             print("Generating image from a new tweet!")
             display_new_generated_image_from_tweet()
-        threading.Timer(5, check_recent_tweets_and_generate_image_if_new).start()
+        threading.Timer(TIME_INTERVAL_CHECK_TWITTER, check_recent_tweets_and_generate_image_if_new).start()
 
 
     image_generation_timer()
