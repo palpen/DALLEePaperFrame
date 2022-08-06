@@ -35,22 +35,23 @@ The ePaper frame acts as a client to the server, requesting new art to be genera
 
 ## How does it work?
 The server is using an NVIDIA GPU (e.g. a Jetson, or other discrete GPU), and the ePaper frame "client" is running on a Raspberry Pi.
-The frame has four buttons, and a microphone.  
-The four buttons have the following functions:
-1. Request a new generation of art with the same prompt previously used (and currently displayed on the ePaper frame).
+The ePaper frame has four buttons with the following functions:
+
+1. Request a new generation of art from the most recent Tweet containing the #dalle hashtag from the [@DALLEePaper Twitter account](https://twitter.com/DALLEePaper).
 2. Request a new generation of art with a new prompt created from the pre-built prompts. (see `prompts.txt`)
-3. Request a new generation of art with a new prompt created from the microphone. After the button is pressed, the microphone will start recording for 3 seconds.
-4. Enable/disable automatic art generation (based on previously used prompt or pre-built prompts). 
+3. Requests a new generation of art from previously used prompt.
+4. Enable/disable automatic art generation (based on previously used prompt or pre-built prompts).
+
+The client also monitors the [@DALLEePaper](https://twitter.com/DALLEePaper) Twitter account for new tweets. When a new tweet is posted containing the #dalle hashtag, it will request a new generation of art using the contents of the tweet.
 
 ### Extra Technical Details
 The display I used was an [Inky Impression 5.7"](https://shop.pimoroni.com/products/inky-impression-5-7?variant=32298701324371) ePaper frame.
-It is connected to a [Raspberry Pi 1B+](https://www.raspberrypi.com/products/raspberry-pi-1-model-b-plus/) but any other Raspberry Pi should work.
+It is connected to a [Raspberry Pi 3B+](https://www.raspberrypi.com/products/raspberry-pi-3-model-b-plus/) but any other Raspberry Pi should work.
 The `client/` directory contains the single Python script used to control the frame and connect to the server.
 
 The server is running two docker containers, orchestrated by a [Docker Compose](https://docs.docker.com/compose/overview/) file.
 The two containers are:
-- `triton-inference-server`: Uses NVIDIA's [Triton Inference Server](https://github.com/triton-inference-server) to host the art generation AI model and the automatic speech recognition (ASR) model.
-  - The ASR model is a [wav2vec 2.0 Large](https://github.com/facebookresearch/fairseq/blob/main/examples/wav2vec/README.md) model converted to ONNX format for inference.
+- `triton-inference-server`: Uses NVIDIA's [Triton Inference Server](https://github.com/triton-inference-server) to host the art generation AI model (I'm using a GeForce RTX 3090).
   - The art generation model is a DALLE-mini variant called [min-dalle](https://github.com/kuprel/min-dalle) (massive shoutout to Brett Kuprel for this incredible Pytorch port).
 - `art-generator-api`: a [FastAPI](https://fastapi.tiangolo.com/) server that acts a clean endpoint for the client to request new art.
 The `server/` directory contains the code for the server. 
@@ -58,6 +59,20 @@ The `server/` directory contains the code for the server.
 <img src="docs/diagram.jpg" title="Architecture Diagram">
 
 ## How do I use this project?
+### Set up Twitter API
+
+You'll need to create an app project with **Elevated** access on [Twitter's developer platform](https://developer.twitter.com/en). You'll then need to add a `config.yml` containing your keys and tokens to the root directory of this repository:
+
+```
+user_id: <TWITTER USER ID>  # You can get your Twitter id for your username here https://tweeterid.com/
+twitter_api_keys:
+  consumer_key: <CONSUMER KEY>
+  consumer_secret: <CONSUMER SECRET>
+  bearer_token: <BEARER TOKEN>
+  access_token_key: <ACCESS TOKEN KEY>
+  access_token_secret: <ACCESS TOKEN SECRET>
+```
+
 ### Set up the Server
 
 Set up the server with the script `setup_server.sh`:
