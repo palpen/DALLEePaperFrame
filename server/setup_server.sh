@@ -22,5 +22,5 @@ if ! command -v docker-compose >/dev/null 2>&1; then
 fi
 
 # create onnx file
-docker run -v ${PWD}:/workspace -it pytorch-onnx-export python3 extract_onnx_models.py
+docker run -v ${PWD}:/workspace --gpus all -it pytorch-onnx-export python3 extract_onnx_models.py
 mv asr.onnx model_repo/asr_infer/1/asr.onnx
