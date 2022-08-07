@@ -15,7 +15,7 @@
 <meta name="twitter:image" content="https://famousdirector.github.io/DALLEePaperFrame/docs/sample.jpg">
 </head>
 
-# DALLEePaperFrame
+# DALLEePaperFrame (Twitter version)
 
 **This is a fork of [DALLEePaperFrame](https://github.com/FamousDirector/DALLEePaperFrame), a really great project that I've modified to generate images from tweets using the [@DALLEePaper](https://twitter.com/DALLEePaper) account on Twitter.** 
 
