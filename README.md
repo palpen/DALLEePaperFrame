@@ -17,10 +17,7 @@
 
 # DALLEePaperFrame
 
-**This is a fork of [DALLEePaperFrame](https://github.com/FamousDirector/DALLEePaperFrame) that I've modified to generate images from tweets using the [@DALLEePaper](https://twitter.com/DALLEePaper) account on Twitter.** 
-
-Ever wanted to display never before seen art, on demand, using AI?
-Press a button, speak a "prompt" for the AI artist, and see the new art!
+**This is a fork of [DALLEePaperFrame](https://github.com/FamousDirector/DALLEePaperFrame), a really great project that I've modified to generate images from tweets using the [@DALLEePaper](https://twitter.com/DALLEePaper) account on Twitter.** 
 
 <img src="docs/sample.jpg" title="Art Generated onto ePaper!">
 
