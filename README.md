@@ -17,7 +17,7 @@
 
 # DALLEePaperFrame (Twitter version)
 
-**This is a fork of [DALLEePaperFrame](https://github.com/FamousDirector/DALLEePaperFrame), a really great project that I've modified to generate images from tweets using the [@DALLEePaper](https://twitter.com/DALLEePaper) account on Twitter.** 
+**This is a fork of [DALLEePaperFrame](https://github.com/FamousDirector/DALLEePaperFrame), a really great project that I've modified to generate images from tweets (instead of text transcribed from speech) using the [@DALLEePaper](https://twitter.com/DALLEePaper) account on Twitter.** 
 
 <img src="docs/sample.jpg" title="Art Generated onto ePaper!">
 
@@ -27,19 +27,17 @@ By now everyone has seen AI generated art.
 There has been lots of amazing works in this field, perhaps most notably [DALLE2](https://openai.com/dall-e-2/) by OpenAI.
 In my opinion, the best way to view art is not on a computer screen, but in a frame on the wall. 
 
-This project use a local server to host the art generation AI and automatic speech recognition capabilities. 
-The ePaper frame acts as a client to the server, requesting new art to be generated on demand.
+This project uses a local server to host the art generation AI. The ePaper frame acts as a client to the server, requesting new art to be generated on demand. Art is generated when tweets are made from [@DALLEePaper](https://twitter.com/DALLEePaper).
 
 ## How does it work?
-The server is using an NVIDIA GPU (e.g. a Jetson, or other discrete GPU), and the ePaper frame "client" is running on a Raspberry Pi.
-The ePaper frame has four buttons with the following functions:
+The server is using an NVIDIA GPU (e.g. a Jetson, or other discrete GPU), and the ePaper frame "client" is running on a Raspberry Pi. The client monitors the [@DALLEePaper](https://twitter.com/DALLEePaper) Twitter account for new tweets. When a new tweet is posted containing the #dalle hashtag, it will request a new generation of art using the contents of the tweet.
+
+In addition, the ePaper frame has four buttons with the following functions:
 
 1. Request a new generation of art from the most recent Tweet containing the #dalle hashtag from the [@DALLEePaper Twitter account](https://twitter.com/DALLEePaper).
 2. Request a new generation of art with a new prompt created from the pre-built prompts. (see `prompts.txt`)
 3. Requests a new generation of art from previously used prompt.
 4. Enable/disable automatic art generation (based on previously used prompt or pre-built prompts).
-
-The client also monitors the [@DALLEePaper](https://twitter.com/DALLEePaper) Twitter account for new tweets. When a new tweet is posted containing the #dalle hashtag, it will request a new generation of art using the contents of the tweet.
 
 ### Extra Technical Details
 The display I used was an [Inky Impression 5.7"](https://shop.pimoroni.com/products/inky-impression-5-7?variant=32298701324371) ePaper frame.
@@ -48,7 +46,7 @@ The `client/` directory contains the single Python script used to control the fr
 
 The server is running two docker containers, orchestrated by a [Docker Compose](https://docs.docker.com/compose/overview/) file.
 The two containers are:
-- `triton-inference-server`: Uses NVIDIA's [Triton Inference Server](https://github.com/triton-inference-server) to host the art generation AI model (I'm using a GeForce RTX 3090).
+- `triton-inference-server`: Uses NVIDIA's [Triton Inference Server](https://github.com/triton-inference-server) to host the art generation AI model (my personal setup uses a PC with a GeForce RTX 3090, which, admittedly, is not the most power efficient setup).
   - The art generation model is a DALLE-mini variant called [min-dalle](https://github.com/kuprel/min-dalle) (massive shoutout to Brett Kuprel for this incredible Pytorch port).
 - `art-generator-api`: a [FastAPI](https://fastapi.tiangolo.com/) server that acts a clean endpoint for the client to request new art.
 The `server/` directory contains the code for the server. 
@@ -106,8 +104,7 @@ See here for other notes on reducing power consumption on Raspberry Pis:
   - https://blues.io/blog/tips-tricks-optimizing-raspberry-pi-power/
 
 ### System requirements
-The min-dalle model and ASR model take around 8GB and 4GB of GPU memory, respectively. So ensure you have at least 12GB of GPU memory. 
-If your GPU does not have enough memory, you may want to consider only running the `min-dalle` model for generating art.
+The min-dalle model takes around 8GB GPU memory, respectively. So ensure you have at least this much GPU memory. 
 
 ### Generation Time
 The time taken for art generation is about 10 seconds on an NVIDIA Jetson AGX Orin and about 7 seconds with an NVIDIA RTX2070.
