@@ -19,9 +19,18 @@ from record_audio import record_audio
 
 with open("../config.yml", "r") as stream:
 	try:
-		configs = yaml.safe_load(stream)
+            configs = yaml.safe_load(stream)
 	except yaml.YAMLError as exc:
-		print(exc)
+	    print(exc)
+
+with open("prompts_config.yml", "r") as stream:
+	try:
+            prompts_config = yaml.safe_load(stream)
+	except yaml.YAMLError as exc:
+       	    print(exc)
+pre_prompts = prompts_config["pre_prompts"]
+prompts = prompts_config["prompts"]
+
 
 display = inky.auto()
 width, height = display.resolution
@@ -38,21 +47,6 @@ TIME_INTERVAL_CHECK_TWITTER = 5  # How frequently should the client check Twitte
 saved_image_folder = 'saved_images'
 if not os.path.exists(saved_image_folder):
     os.makedirs(saved_image_folder)
-
-with open("prompts.txt") as file:
-    prompts = file.readlines()
-    prompts = [p.rstrip() for p in prompts]
-
-pre_prompts = ['',
-               'a cartoon of',
-               'a painting of',
-               'a watercolor of',
-               'a comic of',
-               'a stencil of',
-               'a picture of',
-               'a sculpture of',
-               'a drawing of',
-               '']
 
 # Setup Twitter API access
 twitter_api_keys = configs["twitter_api_keys"]
