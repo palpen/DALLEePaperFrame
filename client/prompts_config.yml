@@ -1,0 +1,12 @@
+pre_prompts:
+    - 'a cartoon of'
+    - 'a painting of'
+    - 'a watercolor of'
+    - 'a comic of'
+    - 'a stencil of'
+    - 'a picture of'
+    - 'a sculpture of'
+    - 'a drawing of'
+    - ''
+prompts:
+style:
