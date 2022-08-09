@@ -17,13 +17,13 @@
 
 # DALLEePaperFrame (Twitter version)
 
-**This is a fork of [DALLEePaperFrame](https://github.com/FamousDirector/DALLEePaperFrame), a really great project that I've modified to generate images from tweets (instead of text transcribed from speech) using the [@DALLEePaper](https://twitter.com/DALLEePaper) account on Twitter.** 
+**This is a fork of [DALLEePaperFrame](https://github.com/FamousDirector/DALLEePaperFrame), a really great project that I've modified to generate images from tweets (instead of text transcribed from speech) using the [@DALLEePaper](https://twitter.com/DALLEePaper) account on Twitter.**
 
 <img src="docs/sample.jpg" title="Art Generated onto ePaper!">
 
 
 ## What is this project?
-By now everyone has seen AI generated art. 
+By now everyone has seen AI generated art.
 There has been lots of amazing works in this field, perhaps most notably [DALLE2](https://openai.com/dall-e-2/) by OpenAI.
 In my opinion, the best way to view art is not on a computer screen, but in a frame on the wall. 
 
@@ -35,7 +35,7 @@ The server is using an NVIDIA GPU (e.g. a Jetson, or other discrete GPU), and th
 In addition, the ePaper frame has four buttons with the following functions:
 
 1. Request a new generation of art from the most recent Tweet containing the #dalle hashtag from the [@DALLEePaper Twitter account](https://twitter.com/DALLEePaper).
-2. Request a new generation of art with a new prompt created from the pre-built prompts. (see `prompts.txt`)
+2. Request a new generation of art with a new prompt created from the pre-built prompts. (see `prompts_config.yml`)
 3. Requests a new generation of art from previously used prompt.
 4. Enable/disable automatic art generation (based on previously used prompt or pre-built prompts).
 
@@ -86,7 +86,7 @@ bash run_server.sh
 Set up the client with the script `setup_client.sh`:
 ```bash
 cd client/
-bash setup_client.sh 
+bash setup_client.sh
 ```
 
 ### Run the Client
@@ -104,7 +104,7 @@ See here for other notes on reducing power consumption on Raspberry Pis:
   - https://blues.io/blog/tips-tricks-optimizing-raspberry-pi-power/
 
 ### System requirements
-The min-dalle model takes around 8GB GPU memory, respectively. So ensure you have at least this much GPU memory. 
+The min-dalle model takes around 8GB GPU memory, respectively. So ensure you have at least this much GPU memory.
 
 ### Generation Time
 The time taken for art generation is about 10 seconds on an NVIDIA Jetson AGX Orin and about 7 seconds with an NVIDIA RTX2070.
