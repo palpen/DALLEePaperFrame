@@ -2,6 +2,7 @@ import argparse
 import io
 import os.path
 import random
+import sys
 import time
 import threading
 
@@ -39,6 +40,12 @@ fc = FrameComposer(width, height)
 
 last_creation_time = 0
 minimum_time_between_image_generations = 5
+
+# Settings for display_image_on_frame function
+MAX_NUM_IMAGES_TO_DISPLAY = 2
+TIME_THRESHOLD = 180  # We cannot display more than MAX_NUM_IMAGES_TO_DISPLAY in less than MAX_TIME
+num_images_displayed = 0
+last_display_time = 0
 
 automated_image_generation = True
 automated_image_generation_time = 60 * 60 * 1  # 1 hours
@@ -87,16 +94,41 @@ def generate_new_image(text_prompt, generated_image_size=350):
 
 
 def display_image_on_frame(image, text_prompt):
-    print("Displaying image on frame")
+    """Display image and text prompt on ePaper frame
+
+    To protect the frame from bugs that might cause it to refresh with new images
+    repeatedly, we restrict the number of images that can be displaed over
+    a span of time. Specifically, no more than MAX_NUM_IMAGES_TO_DISPLAY display
+    refreshes are allowed over a span of time set in TIME_THRESHOLD.
+    """
+    global num_images_displayed, last_display_time
+
+    if num_images_displayed > MAX_NUM_IMAGES_TO_DISPLAY:
+        print(
+            f"You displayed more than the allowable amount in the time interval of {TIME_THRESHOLD}."
+            "This will stop the program to protect the ePaper frame. Good bye."
+        )
+        sys.exit(1)
+
+    if time.time() - last_display_time < TIME_THRESHOLD:
+        num_images_displayed += num_images_displayed + 1
+    else:
+        num_images_displayed = 0
+
     frame_image = fc.create_frame_image(image, text_prompt)
     display.set_image(frame_image)
     display.set_border(inky.BLACK)
     display.show()
+
+    last_display_time = time.time()
+
     print("Displayed image on display")
 
 
 def save_image_to_file(image, text_prompt):
-    image.save(os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png'))
+    full_path = os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png')
+    print(f"File saved to {full_path}")
+    image.save(full_path)
 
     # remove the oldest image if there are more than 100 images in the folder
     if len(os.listdir(saved_image_folder)) > 100:
@@ -142,13 +174,13 @@ if __name__ == '__main__':
         if time.time() - last_creation_time > minimum_time_between_image_generations:  # debounce the button press
             global GENERATOR_TEXT_PROMPT
 
-            print("Generating image from tweet...")
             # get text prompt from tweet
             tweet_id, GENERATOR_TEXT_PROMPT = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
-            print(f"Text prompt from tweet id {tweet_id}: {GENERATOR_TEXT_PROMPT}")
+            print(f"Text prompt from new tweet with id {tweet_id}: {GENERATOR_TEXT_PROMPT}")
 
             # generate and display a new image
             try:
+                print("Generating image from tweet")
                 generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
                 save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
 
@@ -188,7 +220,7 @@ if __name__ == '__main__':
                         GENERATOR_TEXT_PROMPT.replace(' ', '_') + '.png'),
                 )
             except Exception as e:
-                print("A problem occurred: ", e)
+                print("A problem occurred at display_new_generated_image_w_same_prompt: ", e)
                 generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
             display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
 
@@ -216,7 +248,7 @@ if __name__ == '__main__':
                         GENERATOR_TEXT_PROMPT.replace(' ', '_') + '.png'),
                 )
             except Exception as e:
-                print("A problem occurred: ", e)
+                print("A problem occurred at display_new_generated_image_w_new_prompt: ", e)
                 generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
             display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
 
