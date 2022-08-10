@@ -112,6 +112,7 @@ def display_image_on_frame(image, text_prompt):
 
     if time.time() - last_display_time < TIME_THRESHOLD:
         num_images_displayed += num_images_displayed + 1
+        print(f"Incremented display counter. Current count: {num_images_displayed}")
     else:
         num_images_displayed = 0
 
