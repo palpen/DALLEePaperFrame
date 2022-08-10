@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import io
 import os.path
 import random
@@ -42,7 +43,7 @@ last_creation_time = 0
 minimum_time_between_image_generations = 5
 
 # Settings for display_image_on_frame function
-MAX_NUM_IMAGES_TO_DISPLAY = 2
+MAX_NUM_IMAGES_TO_DISPLAY = 5
 TIME_THRESHOLD = 180  # We cannot display more than MAX_NUM_IMAGES_TO_DISPLAY in less than MAX_TIME
 num_images_displayed = 0
 last_display_time = 0
@@ -123,7 +124,7 @@ def display_image_on_frame(image, text_prompt):
 
     last_display_time = time.time()
 
-    print("Displayed image on display")
+    print(f"Displayed image on display at {datetime.datetime.now()}")
 
 
 def save_image_to_file(image, text_prompt):
