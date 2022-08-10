@@ -36,6 +36,6 @@ def clean_up_tweets(tweets: List[str]) -> List[Tuple[int, str]]:
 def retrieve_most_recent_text_prompt(client: tweepy.client.Client, configs: Dict[str, str]):
 	raw_tweets = retrieve_tweets_containing_text_prompt(client=client, configs=configs)
 	if not raw_tweets:
-		raise ValueError("There are no text prompts containing the trigger hashtag #genimg")
+		raise ValueError(f"There are no text prompts containing the trigger hashtag {TEXT_PROMPT_HASHTAG}")
 	text_prompts = clean_up_tweets(raw_tweets)
 	return text_prompts[0]
