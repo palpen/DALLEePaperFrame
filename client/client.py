@@ -129,13 +129,16 @@ def display_image_on_frame(image, text_prompt):
 
 def save_image_to_file(image, text_prompt):
     full_path = os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png')
-    print(f"File saved to {full_path}")
     image.save(full_path)
+    print(f"File saved to {full_path}")
 
     # remove the oldest image if there are more than 100 images in the folder
-    if len(os.listdir(saved_image_folder)) > 100:
-        oldest_image_path = os.path.join(saved_image_folder, sorted(os.listdir(saved_image_folder))[0])
-        os.remove(oldest_image_path)
+    image_files = os.listdir(saved_image_folder)
+    if len(image_files) > 100:
+        files = [os.path.join(saved_image_folder, f) for f in image_files]
+        oldest_file = sorted(files, key=os.path.getmtime)[0]
+        print(f"Deleting {oldest_file}")
+        os.remove(oldest_file)
 
 
 def load_image_from_file(text_prompt):
