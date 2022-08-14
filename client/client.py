@@ -19,6 +19,22 @@ from buttons import set_button_function, wait_forever_for_button_presses
 from record_audio import record_audio
 
 
+GENERATED_IMAGE_SIZE = 390
+
+last_creation_time = 0
+minimum_time_between_image_generations = 5
+
+# Settings for display_image_on_frame function
+MAX_NUM_IMAGES_TO_DISPLAY = 5
+TIME_THRESHOLD = 180  # We cannot display more than MAX_NUM_IMAGES_TO_DISPLAY in less than MAX_TIME
+num_images_displayed = 0
+last_display_time = 0
+
+automated_image_generation = True
+automated_image_generation_time = 60 * 60 * 1  # 1 hours
+TIME_INTERVAL_CHECK_TWITTER = 5  # How frequently should the client check Twitter for new text prompts (seconds)
+
+
 with open("../config.yml", "r") as stream:
 	try:
             configs = yaml.safe_load(stream)
@@ -36,21 +52,10 @@ prompts = prompts_config["prompts"]
 
 display = inky.auto()
 width, height = display.resolution
+print(f"Display width and height: {width}, {height}")
 
 fc = FrameComposer(width, height)
 
-last_creation_time = 0
-minimum_time_between_image_generations = 5
-
-# Settings for display_image_on_frame function
-MAX_NUM_IMAGES_TO_DISPLAY = 5
-TIME_THRESHOLD = 180  # We cannot display more than MAX_NUM_IMAGES_TO_DISPLAY in less than MAX_TIME
-num_images_displayed = 0
-last_display_time = 0
-
-automated_image_generation = True
-automated_image_generation_time = 60 * 60 * 1  # 1 hours
-TIME_INTERVAL_CHECK_TWITTER = 5  # How frequently should the client check Twitter for new text prompts (seconds)
 
 saved_image_folder = 'saved_images'
 if not os.path.exists(saved_image_folder):
@@ -82,7 +87,7 @@ def generate_sample_prompt():
     return pp + ' ' + p if pp != '' else p
 
 
-def generate_new_image(text_prompt, generated_image_size=350):
+def generate_new_image(text_prompt, generated_image_size=GENERATED_IMAGE_SIZE):
     print('Generating new image...')
 
     # request the image from the server
