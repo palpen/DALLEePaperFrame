@@ -19,22 +19,28 @@ from buttons import set_button_function, wait_forever_for_button_presses
 from record_audio import record_audio
 
 
-GENERATED_IMAGE_SIZE = 400
+GENERATED_IMAGE_SIZE = 400  # Image size to pass to API (image returned is a square)
+MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS = 5
 
-last_creation_time = 0
-minimum_time_between_image_generations = 5
-
-# Settings for display_image_on_frame function
-MAX_NUM_IMAGES_TO_DISPLAY = 5
+MAX_NUM_IMAGES_TO_DISPLAY = 5  # If more than 5 images are generated within TIME_THRESHOLD, kill the program
 TIME_THRESHOLD = 180  # We cannot display more than MAX_NUM_IMAGES_TO_DISPLAY in less than MAX_TIME
-num_images_displayed = 0
-last_display_time = 0
 
-automated_image_generation = True
-automated_image_generation_time = 60 * 60 * 1  # 1 hours
+AUTOMATED_IMAGE_GENERATION = True
+AUTOMATED_IMAGE_GENERATION_TIME = 60 * 60 * 1  # 1 hours
+
 TIME_INTERVAL_CHECK_TWITTER = 5  # How frequently should the client check Twitter for new text prompts (seconds)
 
+SAVED_IMAGE_FOLDER = 'saved_images'
 
+
+# State variables
+last_creation_time = 0
+num_images_displayed = 0
+last_display_time = 0
+generator_text_prompt = "a cat"
+
+
+# Load configuration variables
 with open("../config.yml", "r") as stream:
 	try:
             configs = yaml.safe_load(stream)
@@ -50,16 +56,17 @@ pre_prompts = prompts_config["pre_prompts"]
 prompts = prompts_config["prompts"]
 
 
+# Initialize display
 display = inky.auto()
 width, height = display.resolution
 print(f"Display width and height: {width}, {height}")
-
 fc = FrameComposer(width, height)
 
 
-saved_image_folder = 'saved_images'
-if not os.path.exists(saved_image_folder):
-    os.makedirs(saved_image_folder)
+# Initialize folder to store images generated in
+if not os.path.exists(SAVED_IMAGE_FOLDER):
+    os.makedirs(SAVED_IMAGE_FOLDER)
+
 
 # Setup Twitter API access
 twitter_api_keys = configs["twitter_api_keys"]
@@ -133,14 +140,14 @@ def display_image_on_frame(image, text_prompt):
 
 
 def save_image_to_file(image, text_prompt):
-    full_path = os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png')
+    full_path = os.path.join(SAVED_IMAGE_FOLDER, text_prompt.replace(' ', '_') + '.png')
     image.save(full_path)
     print(f"File saved to {full_path}")
 
     # remove the oldest image if there are more than 100 images in the folder
-    image_files = os.listdir(saved_image_folder)
+    image_files = os.listdir(SAVED_IMAGE_FOLDER)
     if len(image_files) > 100:
-        files = [os.path.join(saved_image_folder, f) for f in image_files]
+        files = [os.path.join(SAVED_IMAGE_FOLDER, f) for f in image_files]
         oldest_file = sorted(files, key=os.path.getmtime)[0]
         print(f"Deleting {oldest_file}")
         os.remove(oldest_file)
@@ -148,13 +155,13 @@ def save_image_to_file(image, text_prompt):
 
 def load_image_from_file(text_prompt):
     # find matching image in the saved images folder
-    image_path = os.path.join(saved_image_folder, text_prompt.replace(' ', '_') + '.png')
+    image_path = os.path.join(SAVED_IMAGE_FOLDER, text_prompt.replace(' ', '_') + '.png')
     if os.path.isfile(image_path):
         return Image.open(image_path), text_prompt
     else:
         # return random image if no matching image is found
-        random_file_name = random.choice(os.listdir(saved_image_folder))
-        return Image.open(os.path.join(saved_image_folder, random_file_name)), \
+        random_file_name = random.choice(os.listdir(SAVED_IMAGE_FOLDER))
+        return Image.open(os.path.join(SAVED_IMAGE_FOLDER, random_file_name)), \
                random_file_name.split('.')[0].replace('_', ' ')
 
 
@@ -174,39 +181,39 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    GENERATOR_TEXT_PROMPT = generate_sample_prompt()
+    generator_text_prompt = generate_sample_prompt()
 
 
     def display_new_generated_image_from_tweet(_=None):
 
         global last_creation_time
 
-        if time.time() - last_creation_time > minimum_time_between_image_generations:  # debounce the button press
-            global GENERATOR_TEXT_PROMPT
+        if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
+            global generator_text_prompt
 
             # get text prompt from tweet
-            tweet_id, GENERATOR_TEXT_PROMPT = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
-            print(f"Text prompt from new tweet with id {tweet_id}: {GENERATOR_TEXT_PROMPT}")
+            tweet_id, generator_text_prompt = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
+            print(f"Text prompt from new tweet with id {tweet_id}: {generator_text_prompt}")
 
             # generate and display a new image
             try:
                 print("Generating image from tweet")
-                generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
-                save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+                generated_image = generate_new_image(generator_text_prompt)
+                save_image_to_file(generated_image, generator_text_prompt)
 
                 # upload image as a reply to original text prompt tweet
                 print("Uploading image to Twitter")
                 api.update_status_with_media(
                     "",
                     filename=os.path.join(
-                        saved_image_folder,
-                        GENERATOR_TEXT_PROMPT.replace(' ', '_') + '.png'),
+                        SAVED_IMAGE_FOLDER,
+                        generator_text_prompt.replace(' ', '_') + '.png'),
                     in_reply_to_status_id=tweet_id
                 )
             except Exception as e:
                 print("A problem occurred: ", e)
-                generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
-            display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
+                generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt)
 
             last_creation_time = time.time()
 
@@ -214,25 +221,25 @@ if __name__ == '__main__':
     def display_new_generated_image_w_same_prompt(_=None):
         global last_creation_time
 
-        if time.time() - last_creation_time > minimum_time_between_image_generations:  # debounce the button press
-            global GENERATOR_TEXT_PROMPT
+        if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
+            global generator_text_prompt
 
             # generate and display a new image
             try:
-                generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
-                save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+                generated_image = generate_new_image(generator_text_prompt)
+                save_image_to_file(generated_image, generator_text_prompt)
 
                 print("Uploading image to Twitter")
                 api.update_status_with_media(
-                    GENERATOR_TEXT_PROMPT + " #autogenerated",
+                    generator_text_prompt + " #autogenerated",
                     filename=os.path.join(
-                        saved_image_folder,
-                        GENERATOR_TEXT_PROMPT.replace(' ', '_') + '.png'),
+                        SAVED_IMAGE_FOLDER,
+                        generator_text_prompt.replace(' ', '_') + '.png'),
                 )
             except Exception as e:
                 print("A problem occurred at display_new_generated_image_w_same_prompt: ", e)
-                generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
-            display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
+                generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt)
 
             last_creation_time = time.time()
 
@@ -240,27 +247,27 @@ if __name__ == '__main__':
     def display_new_generated_image_w_new_prompt(_=None):
         global last_creation_time
 
-        if time.time() - last_creation_time > minimum_time_between_image_generations:  # debounce the button press
-            global GENERATOR_TEXT_PROMPT
+        if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
+            global generator_text_prompt
 
-            GENERATOR_TEXT_PROMPT = generate_sample_prompt()  # generate a new prompt
+            generator_text_prompt = generate_sample_prompt()  # generate a new prompt
 
             # generate and display a new image
             try:
-                generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
-                save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+                generated_image = generate_new_image(generator_text_prompt)
+                save_image_to_file(generated_image, generator_text_prompt)
 
                 print("Uploading image to Twitter")
                 api.update_status_with_media(
-                    GENERATOR_TEXT_PROMPT + " #autogenerated",
+                    generator_text_prompt + " #autogenerated",
                     filename=os.path.join(
-                        saved_image_folder,
-                        GENERATOR_TEXT_PROMPT.replace(' ', '_') + '.png'),
+                        SAVED_IMAGE_FOLDER,
+                        generator_text_prompt.replace(' ', '_') + '.png'),
                 )
             except Exception as e:
                 print("A problem occurred at display_new_generated_image_w_new_prompt: ", e)
-                generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
-            display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
+                generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt)
 
             last_creation_time = time.time()
 
@@ -268,8 +275,8 @@ if __name__ == '__main__':
     def display_new_generated_image_w_recorded_prompt(_=None):
         global last_creation_time
 
-        if time.time() - last_creation_time > minimum_time_between_image_generations:
-            global GENERATOR_TEXT_PROMPT
+        if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:
+            global generator_text_prompt
 
             # record the user's voice
             print('Recording audio...')
@@ -277,25 +284,25 @@ if __name__ == '__main__':
             print('Finished recording audio')
 
             # get the text prompt from the audio file
-            GENERATOR_TEXT_PROMPT = get_text_prompt_from_audio(audio_file_name)
+            generator_text_prompt = get_text_prompt_from_audio(audio_file_name)
 
             # generate and display a new image
             try:
-                generated_image = generate_new_image(GENERATOR_TEXT_PROMPT)
-                save_image_to_file(generated_image, GENERATOR_TEXT_PROMPT)
+                generated_image = generate_new_image(generator_text_prompt)
+                save_image_to_file(generated_image, generator_text_prompt)
             except Exception as e:
                 print("A problem occurred: ", e)
-                generated_image, GENERATOR_TEXT_PROMPT = load_image_from_file(GENERATOR_TEXT_PROMPT)
-            display_image_on_frame(generated_image, GENERATOR_TEXT_PROMPT)
+                generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt)
 
             last_creation_time = time.time()
 
 
     def toggle_auto_image_generation(_=None):
-        global automated_image_generation
-        automated_image_generation = not automated_image_generation
+        global AUTOMATED_IMAGE_GENERATION
+        AUTOMATED_IMAGE_GENERATION = not AUTOMATED_IMAGE_GENERATION
 
-        if automated_image_generation:
+        if AUTOMATED_IMAGE_GENERATION:
             print("Automated image generation enabled")
         else:
             print("Automated image generation disabled")
@@ -311,11 +318,11 @@ if __name__ == '__main__':
 
     # set display to auto create a new image every N hours
     def image_generation_timer():
-        if automated_image_generation and time.time() - last_creation_time > minimum_time_between_image_generations:
+        if AUTOMATED_IMAGE_GENERATION and time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:
             print('Automated image generation started')
             random.choice([display_new_generated_image_w_same_prompt, display_new_generated_image_w_new_prompt])()
-        # Runs image_generation_timer after automated_image_generation_time has elapsed
-        threading.Timer(automated_image_generation_time, image_generation_timer).start()
+        # Runs image_generation_timer after AUTOMATED_IMAGE_GENERATION_TIME has elapsed
+        threading.Timer(AUTOMATED_IMAGE_GENERATION_TIME, image_generation_timer).start()
 
 
     def check_recent_tweets_and_generate_image_if_new():
@@ -330,12 +337,12 @@ if __name__ == '__main__':
         )
 
         image_filename = os.path.join(
-            saved_image_folder,
+            SAVED_IMAGE_FOLDER,
             text_prompt.replace(' ', '_') + '.png'
         )
         if (
             not os.path.isfile(image_filename)
-            and time.time() - last_creation_time > minimum_time_between_image_generations
+            and time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS
         ):
             print("Generating image from a new tweet!")
             display_new_generated_image_from_tweet()
