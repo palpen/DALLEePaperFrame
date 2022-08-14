@@ -12,13 +12,17 @@ import tweepy
 import yaml
 
 TEXT_PROMPT_HASHTAG = "#dalle"
+MAX_NUM_TWEETS_TO_RETRIEVE = 3
 
 
 def retrieve_tweets_containing_text_prompt(
 	client: tweepy.client.Client,
 	configs: Dict[str, str]
 ) -> List[Tuple[int, str]]:
-	user_tweets = client.get_users_tweets(id=configs["user_id"], max_results=20)
+	user_tweets = client.get_users_tweets(
+        id=configs["user_id"],
+        max_results=MAX_NUM_TWEETS_TO_RETRIEVE
+    )
 	return [(t.id, t.text) for t in user_tweets.data if TEXT_PROMPT_HASHTAG in t.text]
 
 
