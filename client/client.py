@@ -19,7 +19,7 @@ from buttons import set_button_function, wait_forever_for_button_presses
 from record_audio import record_audio
 
 
-GENERATED_IMAGE_SIZE = 390
+GENERATED_IMAGE_SIZE = 400
 
 last_creation_time = 0
 minimum_time_between_image_generations = 5
