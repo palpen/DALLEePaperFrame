@@ -1,3 +1,8 @@
+"""
+Usage:
+    python generate_image_using_prompt -tp "A painting of a cat"
+"""
+
 import argparse
 import io
 
@@ -11,9 +16,6 @@ from client import display_image_on_frame
 GENERATED_IMAGE_SIZE = 350
 SERVER_IP_ADDRESS = "10.0.0.87"
 PORT = "8000"
-
-display = inky.auto()
-width, height = display.resolution
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-tp', '--text-prompt', help='Text prompt')
