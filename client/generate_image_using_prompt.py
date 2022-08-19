@@ -11,7 +11,7 @@ import inky
 from PIL import Image, ImageDraw
 
 
-GENERATED_IMAGE_SIZE = 350
+GENERATED_IMAGE_SIZE = 400
 SERVER_IP_ADDRESS = "10.0.0.87"
 PORT = "8000"
 
@@ -26,5 +26,5 @@ print(type(generated_image))
 print("Received image from server")
 
 # UNCOMMENT TO DISPLAY IMAGE ON FRAME
-#from client import display_image_on_frame
-#display_image_on_frame(generated_image, args.text_prompt)
+from client import display_image_on_frame
+display_image_on_frame(generated_image, args.text_prompt)
