@@ -39,15 +39,18 @@ num_images_displayed = 0
 last_display_time = 0
 generator_text_prompt = "a cat"
 
+# Get parent directory of this file
+abs_path = os.path.dirname(os.path.abspath(__file__))
+
 
 # Load configuration variables
-with open("../config.yml", "r") as stream:
+with open(f"{os.path.dirname(abs_path)}/config.yml", "r") as stream:
 	try:
             configs = yaml.safe_load(stream)
 	except yaml.YAMLError as exc:
 	    print(exc)
 
-with open("prompts_config.yml", "r") as stream:
+with open(f"{abs_path}/prompts_config.yml", "r") as stream:
 	try:
             prompts_config = yaml.safe_load(stream)
 	except yaml.YAMLError as exc:
