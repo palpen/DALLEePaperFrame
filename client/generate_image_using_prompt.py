@@ -5,9 +5,9 @@ Usage:
 
 import argparse
 import io
+import json
 
 import requests
-import inky
 from PIL import Image, ImageDraw
 
 
@@ -19,6 +19,16 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-tp', '--text-prompt', help='Text prompt')
 args = parser.parse_args()
 
+############################
+# Check status of endpoint #
+############################
+response = requests.get(f'http://{SERVER_IP_ADDRESS}:{PORT}/api_status', timeout=3)
+print(response.ok, response.status_code, response.content)
+print(json.loads(response.content))
+
+######################
+# Generate new image #
+######################
 print('Generating new image...')
 response = requests.get(f'http://{SERVER_IP_ADDRESS}:{PORT}/generate/{args.text_prompt}?size={GENERATED_IMAGE_SIZE}')
 generated_image = Image.open(io.BytesIO(response.content))
@@ -26,5 +36,5 @@ print(type(generated_image))
 print("Received image from server")
 
 # UNCOMMENT TO DISPLAY IMAGE ON FRAME
-from client import display_image_on_frame
-display_image_on_frame(generated_image, args.text_prompt)
+#from client import display_image_on_frame
+#display_image_on_frame(generated_image, args.text_prompt)
