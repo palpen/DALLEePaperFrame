@@ -14,6 +14,15 @@ base_img_path = "../generated_images/"
 triton_client = tritonclient.InferenceServerClient(url="triton-inference-server:8001")
 
 
+@app.get("/api_status")
+def api_status():
+    return {
+        'is_server_live': triton_client.is_server_live(),
+        'is_server_ready': triton_client.is_server_ready(),
+        'is_model_ready': triton_client.is_model_ready("min_dalle")
+    }
+
+
 # generate an image file from a given text
 @app.get("/generate/{text}", response_class=FileResponse)
 def generate_image(text: str, size: int = 256):
