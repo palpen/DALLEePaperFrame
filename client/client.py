@@ -159,25 +159,23 @@ def save_image_to_file(image, text_prompt):
         os.remove(oldest_file)
 
 
-def load_image_from_file(text_prompt):
-    # find matching image in the saved images folder
-    image_path = os.path.join(SAVED_IMAGE_FOLDER, text_prompt.replace(' ', '_') + '.png')
-    if os.path.isfile(image_path):
-        return Image.open(image_path), text_prompt
-    else:
-        # return random image if no matching image is found
-        random_file_name = random.choice(os.listdir(SAVED_IMAGE_FOLDER))
-        return Image.open(os.path.join(SAVED_IMAGE_FOLDER, random_file_name)), \
-               random_file_name.split('.')[0].replace('_', ' ')
+def load_random_previously_generated_image():
+    random_file_name = random.choice(os.listdir(SAVED_IMAGE_FOLDER))
+    text_prompt = random_file_name.split('.')[0].replace('_', ' ')
+    print(f"Loading a previously generated image from the text prompt \"{text_prompt}\"")
+    return (
+        Image.open(os.path.join(SAVED_IMAGE_FOLDER, random_file_name)),
+        text_prompt
+    )
 
 
-def get_text_prompt_from_audio(audio_file_name):
-    url = 'http://' + args.server_address + ':' + args.server_port + '/transcribe'
-    files = {'file': (audio_file_name, open(audio_file_name, 'rb'), 'audio/x-wav')}
-    response = requests.post(url, files=files)
-    text_prompt = response.text.replace('"', '').strip()
-    print("Received text prompt from server - {}".format(text_prompt))
-    return text_prompt
+#def get_text_prompt_from_audio(audio_file_name):
+#    url = 'http://' + args.server_address + ':' + args.server_port + '/transcribe'
+#    files = {'file': (audio_file_name, open(audio_file_name, 'rb'), 'audio/x-wav')}
+#    response = requests.post(url, files=files)
+#    text_prompt = response.text.replace('"', '').strip()
+#    print("Received text prompt from server - {}".format(text_prompt))
+#    return text_prompt
 
 
 if __name__ == '__main__':
@@ -219,13 +217,13 @@ if __name__ == '__main__':
                     )
                 except Exception as e:
                     print("A problem occurred: ", e)
-                    generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
+                    generated_image, generator_text_prompt = load_random_previously_generated_image()
                 display_image_on_frame(generated_image, generator_text_prompt)
-
                 last_creation_time = time.time()
         else:
-            print("Displaying previously generated images")
-            display_previous_text_prompt()
+            generated_image, generator_text_prompt = load_random_previously_generated_image()
+            display_image_on_frame(generated_image, generator_text_prompt)
+            last_creation_time = time.time()
 
 
     def display_new_generated_image_w_same_prompt(_=None):
@@ -249,13 +247,13 @@ if __name__ == '__main__':
                     )
                 except Exception as e:
                     print("A problem occurred at display_new_generated_image_w_same_prompt: ", e)
-                    generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
+                    generated_image, generator_text_prompt = load_random_previously_generated_image()
                 display_image_on_frame(generated_image, generator_text_prompt)
-
                 last_creation_time = time.time()
         else:
-            print("Displaying previously generated images")
-            display_previous_text_prompt()
+            generated_image, generator_text_prompt = load_random_previously_generated_image()
+            display_image_on_frame(generated_image, generator_text_prompt)
+            last_creation_time = time.time()
 
 
     def display_new_generated_image_w_new_prompt(_=None):
@@ -281,13 +279,13 @@ if __name__ == '__main__':
                     )
                 except Exception as e:
                     print("A problem occurred at display_new_generated_image_w_new_prompt: ", e)
-                    generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
+                    generated_image, generator_text_prompt = load_random_previously_generated_image()
                 display_image_on_frame(generated_image, generator_text_prompt)
-
                 last_creation_time = time.time()
         else:
-            print("Displaying previously generated images")
-            display_previous_text_prompt()
+            generated_image, generator_text_prompt = load_random_previously_generated_image()
+            display_image_on_frame(generated_image, generator_text_prompt)
+            last_creation_time = time.time()
 
 
     #def display_new_generated_image_w_recorded_prompt(_=None):
@@ -310,7 +308,7 @@ if __name__ == '__main__':
     #            save_image_to_file(generated_image, generator_text_prompt)
     #        except Exception as e:
     #            print("A problem occurred: ", e)
-    #            generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
+    #            generated_image, generator_text_prompt = load_random_previously_generated_image()
     #        display_image_on_frame(generated_image, generator_text_prompt)
 
     #        last_creation_time = time.time()
@@ -343,21 +341,6 @@ if __name__ == '__main__':
             return False
 
 
-    def display_previous_text_prompt():
-        """Display previous text prompt or a randomly selected one from
-        images saved in SAVED_IMAGE_FOLDER
-
-        TODO: Use this function in place the copy/paste version that's currently
-        in place
-        """
-        global generator_text_prompt
-        # NOTE: load_image_from_file will load a randomly selected image if
-        # no image matching the text prompt exist
-        generated_image, generator_text_prompt = load_image_from_file(generator_text_prompt)
-        display_image_on_frame(generated_image, generator_text_prompt)
-        last_creation_time = time.time()
-
-
     def toggle_auto_image_generation(_=None):
         global AUTOMATED_IMAGE_GENERATION
         AUTOMATED_IMAGE_GENERATION = not AUTOMATED_IMAGE_GENERATION
@@ -385,7 +368,9 @@ if __name__ == '__main__':
                 random.choice([display_new_generated_image_w_same_prompt, display_new_generated_image_w_new_prompt])()
             threading.Timer(AUTOMATED_IMAGE_GENERATION_TIME, image_generation_timer).start()
         else:
-            display_previous_text_prompt()
+            generated_image, generator_text_prompt = load_random_previously_generated_image()
+            display_image_on_frame(generated_image, generator_text_prompt)
+            last_creation_time = time.time()
             threading.Timer(AUTOMATED_IMAGE_GENERATION_TIME, image_generation_timer).start()
 
 
