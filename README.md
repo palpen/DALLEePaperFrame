@@ -92,7 +92,7 @@ bash setup_client.sh
 ### Run the Client
 ```bash
 cd client/
-bash run_client.sh <ip_address> # the IP address of the server
+bash run_client.sh <ip_address_of_server> <path_to_config_yaml_file>
 ```
 
 ## Final thoughts
@@ -104,7 +104,7 @@ See here for other notes on reducing power consumption on Raspberry Pis:
   - https://blues.io/blog/tips-tricks-optimizing-raspberry-pi-power/
 
 ### System requirements
-The min-dalle model takes around 8GB GPU memory, respectively. So ensure you have at least this much GPU memory.
+The min-dalle model takes around 8GB GPU memory. So ensure you have at least this much GPU memory.
 
 ### Generation Time
 The time taken for art generation is about 10 seconds on an NVIDIA Jetson AGX Orin and about 7 seconds with an NVIDIA RTX2070.
