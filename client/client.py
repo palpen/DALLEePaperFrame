@@ -189,37 +189,44 @@ if __name__ == '__main__':
 
 
     def display_new_generated_image_from_tweet(_=None):
+        global last_creation_time, generator_text_prompt
+        print("Pressed display_new_generated_image_from_tweet button")
 
-        global last_creation_time
+        # get text prompt from tweet
+        tweet_id, generator_text_prompt = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
 
-        if server_is_on():
-            if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
-                global generator_text_prompt
+        if not generator_text_prompt:
+            print(f"There are no recent tweets containing {tweets_utils.TEXT_PROMPT_HASHTAG}")
+            generated_image, generator_text_prompt = load_random_previously_generated_image()
+            display_image_on_frame(generated_image, generator_text_prompt)
+            last_creation_time = time.time()
+            # generator_text_prompt is now an empty string, seed it with a new prompt
+            generator_text_prompt = generate_sample_prompt()
+        elif (
+            server_is_on()
+            and time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS  # debounce the button press
+        ):
+            print(f"Text prompt from new tweet with id {tweet_id}: {generator_text_prompt}")
+            # generate and display a new image
+            try:
+                print("Generating image from tweet")
+                generated_image = generate_new_image(generator_text_prompt)
+                save_image_to_file(generated_image, generator_text_prompt)
 
-                # get text prompt from tweet
-                tweet_id, generator_text_prompt = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
-                print(f"Text prompt from new tweet with id {tweet_id}: {generator_text_prompt}")
-
-                # generate and display a new image
-                try:
-                    print("Generating image from tweet")
-                    generated_image = generate_new_image(generator_text_prompt)
-                    save_image_to_file(generated_image, generator_text_prompt)
-
-                    # upload image as a reply to original text prompt tweet
-                    print("Uploading image to Twitter")
-                    api.update_status_with_media(
-                        "",
-                        filename=os.path.join(
-                            SAVED_IMAGE_FOLDER,
-                            generator_text_prompt.replace(' ', '_') + '.png'),
-                        in_reply_to_status_id=tweet_id
-                    )
-                except Exception as e:
-                    print("A problem occurred: ", e)
-                    generated_image, generator_text_prompt = load_random_previously_generated_image()
-                display_image_on_frame(generated_image, generator_text_prompt)
-                last_creation_time = time.time()
+                # upload image as a reply to original text prompt tweet
+                print("Uploading image to Twitter")
+                api.update_status_with_media(
+                    "",
+                    filename=os.path.join(
+                        SAVED_IMAGE_FOLDER,
+                        generator_text_prompt.replace(' ', '_') + '.png'),
+                    in_reply_to_status_id=tweet_id
+                )
+            except Exception as e:
+                print("A problem occurred: ", e)
+                generated_image, generator_text_prompt = load_random_previously_generated_image()
+            display_image_on_frame(generated_image, generator_text_prompt)
+            last_creation_time = time.time()
         else:
             generated_image, generator_text_prompt = load_random_previously_generated_image()
             display_image_on_frame(generated_image, generator_text_prompt)
@@ -227,11 +234,11 @@ if __name__ == '__main__':
 
 
     def display_new_generated_image_w_same_prompt(_=None):
-        global last_creation_time
+        global last_creation_time, generator_text_prompt
+        print("Pressed display_new_generated_image_w_same_prompt button")
 
         if server_is_on():
             if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
-                global generator_text_prompt
 
                 # generate and display a new image
                 try:
@@ -257,14 +264,11 @@ if __name__ == '__main__':
 
 
     def display_new_generated_image_w_new_prompt(_=None):
-        global last_creation_time
-
+        global last_creation_time, generator_text_prompt
+        print("Pressed display_new_generated_image_w_new_prompt button")
         if server_is_on():
             if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
-                global generator_text_prompt
-
                 generator_text_prompt = generate_sample_prompt()  # generate a new prompt
-
                 # generate and display a new image
                 try:
                     generated_image = generate_new_image(generator_text_prompt)
@@ -362,6 +366,7 @@ if __name__ == '__main__':
     def image_generation_timer():
         """Set display to auto create a new image every N hours
         """
+        global last_creation_time
         if server_is_on():
             if AUTOMATED_IMAGE_GENERATION and time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:
                 print('Automated image generation started')
@@ -379,27 +384,36 @@ if __name__ == '__main__':
         is yet to be generated for it. If both previous statements are true,
         then generate an image for it.
         """
-        if server_is_on():
-            # TODO: Fix bug where retrieve_most_recent_text_prompt will raise an exception when
-            # it doesn't see a tweet with the #dalle hashtag
-            # This is triggered because we are only retrieving 5 tweets at a time
-            # and so it doesn't see previous tweets with the #dalle hashtag in it
-            _, text_prompt = tweets_utils.retrieve_most_recent_text_prompt(
-                client=client, configs=configs
-            )
-            image_filename = os.path.join(
-                SAVED_IMAGE_FOLDER,
-                text_prompt.replace(' ', '_') + '.png'
-            )
-            if (
-                not os.path.isfile(image_filename)
+        _, text_prompt = tweets_utils.retrieve_most_recent_text_prompt(
+            client=client, configs=configs
+        )
+        image_filename = os.path.join(
+            SAVED_IMAGE_FOLDER,
+            text_prompt.replace(' ', '_') + '.png'
+        )
+        if not text_prompt:
+            # The last MAX_NUM_TWEETS_TO_RETRIVE number of tweets does not include
+            # the trigger hashtag TEXT_PROMPT_HASHTAG so continue monitoring Twitter
+            threading.Timer(
+                TIME_INTERVAL_CHECK_TWITTER,
+                check_recent_tweets_and_generate_image_if_new
+            ).start()
+        elif (
+                server_is_on()
+                and not os.path.isfile(image_filename)
                 and time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS
-            ):
-                print("Generating image from a new tweet!")
-                display_new_generated_image_from_tweet()
-            threading.Timer(TIME_INTERVAL_CHECK_TWITTER, check_recent_tweets_and_generate_image_if_new).start()
+        ):
+            print("Generating image from a new tweet!")
+            display_new_generated_image_from_tweet()
+            threading.Timer(
+                TIME_INTERVAL_CHECK_TWITTER,
+                check_recent_tweets_and_generate_image_if_new
+            ).start()
         else:
-            threading.Timer(TIME_INTERVAL_CHECK_TWITTER, check_recent_tweets_and_generate_image_if_new).start()
+            threading.Timer(
+                TIME_INTERVAL_CHECK_TWITTER,
+                check_recent_tweets_and_generate_image_if_new
+            ).start()
 
 
     image_generation_timer()

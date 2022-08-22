@@ -31,15 +31,23 @@ def remove_hashtags_and_mentions_from_tweet(tweet: str) -> str:
 
 
 def clean_up_tweets(tweets: List[str]) -> List[Tuple[int, str]]:
+    """Returns a list of tuples containing the tweet id and the raw tweet"""
     return [
         (tweet[0], remove_hashtags_and_mentions_from_tweet(tweet[1]).strip())
         for tweet in tweets
     ]
 
 
-def retrieve_most_recent_text_prompt(client: tweepy.client.Client, configs: Dict[str, str]):
+def retrieve_most_recent_text_prompt(
+    client: tweepy.client.Client,
+    configs: Dict[str, str]
+) -> Tuple[int, str]:
+    """Returns a tuple containing the most recent tweet id and tweet with
+    the TEXT_PROMPT_HASHTAG hashtag that will be used as the text prompt to
+    generate an image using DALL-E
+    """
     raw_tweets = retrieve_tweets_containing_text_prompt(client=client, configs=configs)
     if not raw_tweets:
-        raise ValueError(f"There are no text prompts containing the trigger hashtag {TEXT_PROMPT_HASHTAG}")
+        return (None, "")
     text_prompts = clean_up_tweets(raw_tweets)
     return text_prompts[0]
