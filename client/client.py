@@ -46,15 +46,15 @@ abs_path = os.path.dirname(os.path.abspath(__file__))
 
 # Load configuration variables
 with open(f"{os.path.dirname(abs_path)}/twitter_api_keys.yml", "r") as stream:
-	try:
+    try:
         twitter_api_keys = yaml.safe_load(stream)
-	except yaml.YAMLError as exc:
+    except yaml.YAMLError as exc:
 	    print(exc)
 
 with open(f"{os.path.dirname(abs_path)}/prompts_config.yml", "r") as stream:
-	try:
+    try:
         prompts_config = yaml.safe_load(stream)
-	except yaml.YAMLError as exc:
+    except yaml.YAMLError as exc:
         print(exc)
 pre_prompts = prompts_config["pre_prompts"]
 prompts = prompts_config["prompts"]
