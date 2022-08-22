@@ -202,31 +202,29 @@ if __name__ == '__main__':
             last_creation_time = time.time()
             # generator_text_prompt is now an empty string, seed it with a new prompt
             generator_text_prompt = generate_sample_prompt()
-        elif (
-            server_is_on()
-            and time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS  # debounce the button press
-        ):
-            print(f"Text prompt from new tweet with id {tweet_id}: {generator_text_prompt}")
-            # generate and display a new image
-            try:
-                print("Generating image from tweet")
-                generated_image = generate_new_image(generator_text_prompt)
-                save_image_to_file(generated_image, generator_text_prompt)
+        elif server_is_on():
+            if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
+                print(f"Text prompt from new tweet with id {tweet_id}: {generator_text_prompt}")
+                # generate and display a new image
+                try:
+                    print("Generating image from tweet")
+                    generated_image = generate_new_image(generator_text_prompt)
+                    save_image_to_file(generated_image, generator_text_prompt)
 
-                # upload image as a reply to original text prompt tweet
-                print("Uploading image to Twitter")
-                api.update_status_with_media(
-                    "",
-                    filename=os.path.join(
-                        SAVED_IMAGE_FOLDER,
-                        generator_text_prompt.replace(' ', '_') + '.png'),
-                    in_reply_to_status_id=tweet_id
-                )
-            except Exception as e:
-                print("A problem occurred: ", e)
-                generated_image, generator_text_prompt = load_random_previously_generated_image()
-            display_image_on_frame(generated_image, generator_text_prompt)
-            last_creation_time = time.time()
+                    # upload image as a reply to original text prompt tweet
+                    print("Uploading image to Twitter")
+                    api.update_status_with_media(
+                        "",
+                        filename=os.path.join(
+                            SAVED_IMAGE_FOLDER,
+                            generator_text_prompt.replace(' ', '_') + '.png'),
+                        in_reply_to_status_id=tweet_id
+                    )
+                except Exception as e:
+                    print("A problem occurred: ", e)
+                    generated_image, generator_text_prompt = load_random_previously_generated_image()
+                display_image_on_frame(generated_image, generator_text_prompt)
+                last_creation_time = time.time()
         else:
             generated_image, generator_text_prompt = load_random_previously_generated_image()
             display_image_on_frame(generated_image, generator_text_prompt)
