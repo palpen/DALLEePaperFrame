@@ -7,6 +7,7 @@ import random
 import sys
 import time
 import threading
+from typing import List
 
 import requests
 import inky
@@ -51,14 +52,6 @@ with open(f"{os.path.dirname(abs_path)}/twitter_api_keys.yml", "r") as stream:
     except yaml.YAMLError as exc:
 	    print(exc)
 
-with open(f"{os.path.dirname(abs_path)}/config.yml", "r") as stream:
-    try:
-        config = yaml.safe_load(stream)
-    except yaml.YAMLError as exc:
-        print(exc)
-pre_prompts = config["pre_prompts"]
-prompts = config["prompts"]
-
 
 # Initialize display
 display = inky.auto()
@@ -89,7 +82,7 @@ auth.set_access_token(twitter_api_keys["access_token_key"], twitter_api_keys["ac
 api = tweepy.API(auth)
 
 
-def generate_sample_prompt():
+def generate_sample_prompt(prompts: List[str], pre_prompts: List[str]) -> str:
     """
     Generates a random prompt from the list of prompts and a random pre-prompt.
     :return: a string containing the prompt
@@ -181,10 +174,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--server-address', help='Server address')
     parser.add_argument('-p', '--server-port', default='8000', help='Server port')
+    parser.add_argument('-c', '--config-file', default='config.yml', help='Config yaml file')
 
     args = parser.parse_args()
 
-    generator_text_prompt = generate_sample_prompt()
+    with open(f"{args.config_file}", "r") as stream:
+        try:
+            config = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+    pre_prompts = config["pre_prompts"]
+    prompts = config["prompts"]
+
+    generator_text_prompt = generate_sample_prompt(prompts, pre_prompts)
 
 
     def display_new_generated_image_from_tweet(_=None):
@@ -200,7 +202,7 @@ if __name__ == '__main__':
             display_image_on_frame(generated_image, generator_text_prompt)
             last_creation_time = time.time()
             # generator_text_prompt is now an empty string, seed it with a new prompt
-            generator_text_prompt = generate_sample_prompt()
+            generator_text_prompt = generate_sample_prompt(prompts, pre_prompts)
         elif server_is_on():
             if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
                 print(f"Text prompt from new tweet with id {tweet_id}: {generator_text_prompt}")
@@ -265,7 +267,7 @@ if __name__ == '__main__':
         print("Pressed display_new_generated_image_w_new_prompt button")
         if server_is_on():
             if time.time() - last_creation_time > MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS:  # debounce the button press
-                generator_text_prompt = generate_sample_prompt()  # generate a new prompt
+                generator_text_prompt = generate_sample_prompt(prompts, pre_prompts)  # generate a new prompt
                 # generate and display a new image
                 try:
                     generated_image = generate_new_image(generator_text_prompt)
