@@ -51,13 +51,13 @@ with open(f"{os.path.dirname(abs_path)}/twitter_api_keys.yml", "r") as stream:
     except yaml.YAMLError as exc:
 	    print(exc)
 
-with open(f"{os.path.dirname(abs_path)}/prompts_config.yml", "r") as stream:
+with open(f"{os.path.dirname(abs_path)}/config.yml", "r") as stream:
     try:
-        prompts_config = yaml.safe_load(stream)
+        config = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
         print(exc)
-pre_prompts = prompts_config["pre_prompts"]
-prompts = prompts_config["prompts"]
+pre_prompts = config["pre_prompts"]
+prompts = config["prompts"]
 
 
 # Initialize display
