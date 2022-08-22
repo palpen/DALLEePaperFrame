@@ -1,4 +1,4 @@
-config.yml
+twitter_api_keys.yml
 *.swp
 __pycache__/
 .DS_Store

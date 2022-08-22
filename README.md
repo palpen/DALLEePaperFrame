@@ -56,7 +56,7 @@ The `server/` directory contains the code for the server.
 ## How do I use this project?
 ### Set up Twitter API
 
-You'll need to create an app project with **Elevated** access on [Twitter's developer platform](https://developer.twitter.com/en). You'll then need to add a `config.yml` containing your keys and tokens to the root directory of this repository:
+You'll need to create an app project with **Elevated** access on [Twitter's developer platform](https://developer.twitter.com/en). You'll then need to add a `twitter_api_keys.yml` containing your keys and tokens to the root directory of this repository:
 
 ```
 user_id: <TWITTER USER ID>  # You can get your Twitter id for your username here https://tweeterid.com/

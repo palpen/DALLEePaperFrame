@@ -45,7 +45,7 @@ abs_path = os.path.dirname(os.path.abspath(__file__))
 
 
 # Load configuration variables
-with open(f"{os.path.dirname(abs_path)}/config.yml", "r") as stream:
+with open(f"{os.path.dirname(abs_path)}/twitter_api_keys.yml", "r") as stream:
 	try:
             configs = yaml.safe_load(stream)
 	except yaml.YAMLError as exc:
