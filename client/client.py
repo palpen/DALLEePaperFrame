@@ -47,15 +47,15 @@ abs_path = os.path.dirname(os.path.abspath(__file__))
 # Load configuration variables
 with open(f"{os.path.dirname(abs_path)}/twitter_api_keys.yml", "r") as stream:
 	try:
-            configs = yaml.safe_load(stream)
+        twitter_api_keys = yaml.safe_load(stream)
 	except yaml.YAMLError as exc:
 	    print(exc)
 
-with open(f"{abs_path}/prompts_config.yml", "r") as stream:
+with open(f"{os.path.dirname(abs_path)}/prompts_config.yml", "r") as stream:
 	try:
-            prompts_config = yaml.safe_load(stream)
+        prompts_config = yaml.safe_load(stream)
 	except yaml.YAMLError as exc:
-       	    print(exc)
+        print(exc)
 pre_prompts = prompts_config["pre_prompts"]
 prompts = prompts_config["prompts"]
 
@@ -75,7 +75,6 @@ if not os.path.exists(SAVED_IMAGE_FOLDER):
 
 
 # Setup Twitter API access
-twitter_api_keys = configs["twitter_api_keys"]
 # Twitter API v2
 client = tweepy.Client(
 	bearer_token=twitter_api_keys["bearer_token"],
@@ -193,7 +192,7 @@ if __name__ == '__main__':
         print("Pressed display_new_generated_image_from_tweet button")
 
         # get text prompt from tweet
-        tweet_id, generator_text_prompt = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=configs)
+        tweet_id, generator_text_prompt = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=twitter_api_keys)
 
         if not generator_text_prompt:
             print(f"There are no recent tweets containing {tweets_utils.TEXT_PROMPT_HASHTAG}")
@@ -383,7 +382,7 @@ if __name__ == '__main__':
         then generate an image for it.
         """
         _, text_prompt = tweets_utils.retrieve_most_recent_text_prompt(
-            client=client, configs=configs
+            client=client, configs=twitter_api_keys
         )
         image_filename = os.path.join(
             SAVED_IMAGE_FOLDER,
