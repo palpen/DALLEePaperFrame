@@ -162,7 +162,7 @@ def save_image_to_file(image, text_prompt):
 def load_random_previously_generated_image():
     random_file_name = random.choice(os.listdir(SAVED_IMAGE_FOLDER))
     text_prompt = random_file_name.split('.')[0].replace('_', ' ')
-    print(f"Loading a previously generated image from the text prompt \"{text_prompt}\"")
+    print(f"Loading a (randomly chosen) previously generated image from the text prompt \"{text_prompt}\"")
     return (
         Image.open(os.path.join(SAVED_IMAGE_FOLDER, random_file_name)),
         text_prompt
