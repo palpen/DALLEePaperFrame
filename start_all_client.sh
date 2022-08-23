@@ -1,18 +1,9 @@
-# Script that starts all the clients
+# Script that starts all clients passed in as arguments
+# Usage: ./start_all_client.sh user@host1 user@host2 user@host3
 
 # Path to repository in each raspberry pi
 PATH_TO_REPO=/home/pi/DALLEePaperFrame
 SERVER_IP_ADDR="10.0.0.87"
-
-# Host names
-declare -a arr=(
-#    "raspberrypi0.local"
-#    "raspberrypi1.local"
-    "raspberrypi2.local"
-    "raspberrypi3.local"
-#    "raspberrypi4.local"
-    "10.0.0.67"
-)
 
 # Command to run inside a screen session
 main_cmd="
@@ -23,11 +14,11 @@ main_cmd="
 # Command that starts a screen session in detached mode and runs $main_cmd
 screen_cmd="screen -dmS running_client bash -c \"$main_cmd\""
 
-for host in "${arr[@]}"
+for client in "$@"
     do
-       echo "Running client in $host..."
+       echo "Running client in $client..."
         # SSH into client, start a screen session,
         # start the client, then exit the ssh session"
-        ssh pi@$host "screen -XS running_client quit; $screen_cmd"
+        ssh $client "screen -XS running_client quit; $screen_cmd" &
     done
 wait
