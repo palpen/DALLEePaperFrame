@@ -1,30 +1,42 @@
-pre_prompts:
-    - 'a cartoon of'
-    - 'a painting of'
-    - 'a watercolor of'
-    - 'a comic of'
-    - 'a stencil of'
-    - 'a picture of'
-    - 'a sculpture of'
-    - 'a drawing of'
-    - ''
-prompts:
-    - 'planet earth'
-    - 'a man playing guitar'
-    - 'a fruit salad'
-    - 'a robot'
-    - 'cats in the pool'
-    - 'an astronaut'
-    - 'people dancing'
-    - 'a flower'
-    - 'a tree'
-    - 'a bird'
-    - 'a sunset'
-    - 'a bush'
-    - 'a sunrise'
-    - 'a boat'
-    - 'a beach'
-    - 'the sky'
-    - 'cows in a field'
-    - 'a red car'
-style:
+client:
+  # Used for testing the client without having to load an image on the frame in each run
+  display_on_frame_enabled: True  
+  # Sets the orientation of the display
+  # False displays the image in landscape mode
+  portrait_mode: True  
+
+  pre_prompts:
+      - 'a cartoon of'
+      - 'a painting of'
+      - 'a watercolor of'
+      - 'a comic of'
+      - 'a stencil of'
+      - 'a picture of'
+      - 'a sculpture of'
+      - 'a drawing of'
+      - ''
+  prompts:
+      - 'planet earth'
+      - 'a man playing guitar'
+      - 'a fruit salad'
+      - 'a robot'
+      - 'cats in the pool'
+      - 'an astronaut'
+      - 'people dancing'
+      - 'a flower'
+      - 'a tree'
+      - 'a bird'
+      - 'a sunset'
+      - 'a bush'
+      - 'a sunrise'
+      - 'a boat'
+      - 'a beach'
+      - 'the sky'
+      - 'cows in a field'
+      - 'a red car'
+  style:
+
+tweets_utils:
+  text_prompt_hashtag: "#dalle"
+  max_num_tweets_to_retrieve: 5
+

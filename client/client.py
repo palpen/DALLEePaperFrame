@@ -20,8 +20,6 @@ from frame_composer import FrameComposer
 from buttons import set_button_function, wait_forever_for_button_presses
 from record_audio import record_audio
 
-DISPLAY_ON_FRAME_ENABLED = True  # Used for testing the client without having to load an image on the frame in each run
-PORTRAIT_MODE = True  # Sets the orientation of the display
 
 GENERATED_IMAGE_SIZE = 400  # Image size to pass to API (image returned is a square)
 MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS = 5
@@ -106,7 +104,7 @@ def generate_new_image(text_prompt, generated_image_size=GENERATED_IMAGE_SIZE):
     return generated_image
 
 
-def display_image_on_frame(image, text_prompt):
+def display_image_on_frame(image, text_prompt, display_on_frame_enabled, portrait_mode):
     """Display image and text prompt on ePaper frame
 
     To protect the frame from bugs that might cause it to refresh with new images
@@ -129,8 +127,8 @@ def display_image_on_frame(image, text_prompt):
     else:
         num_images_displayed = 0
 
-    if DISPLAY_ON_FRAME_ENABLED:
-        frame_image = fc.create_frame_image(image, text_prompt, portrait_mode=PORTRAIT_MODE)
+    if display_on_frame_enabled:
+        frame_image = fc.create_frame_image(image, text_prompt, portrait_mode=portrait_mode)
         display.set_image(frame_image)
         display.set_border(inky.BLACK)
         display.show()
@@ -186,8 +184,10 @@ if __name__ == '__main__':
             config = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
-    pre_prompts = config["pre_prompts"]
-    prompts = config["prompts"]
+    pre_prompts = config["client"]["pre_prompts"]
+    prompts = config["client"]["prompts"]
+    display_on_frame_enabled = config["client"]["display_on_frame_enabled"]
+    portrait_mode = config["client"]["portrait_mode"]
 
     generator_text_prompt = generate_sample_prompt(prompts, pre_prompts)
 
@@ -202,7 +202,7 @@ if __name__ == '__main__':
         if not generator_text_prompt:
             print(f"There are no recent tweets containing {tweets_utils.TEXT_PROMPT_HASHTAG}")
             generated_image, generator_text_prompt = load_random_previously_generated_image()
-            display_image_on_frame(generated_image, generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
             last_creation_time = time.time()
             # generator_text_prompt is now an empty string, seed it with a new prompt
             generator_text_prompt = generate_sample_prompt(prompts, pre_prompts)
@@ -227,11 +227,11 @@ if __name__ == '__main__':
                 except Exception as e:
                     print("A problem occurred: ", e)
                     generated_image, generator_text_prompt = load_random_previously_generated_image()
-                display_image_on_frame(generated_image, generator_text_prompt)
+                display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
                 last_creation_time = time.time()
         else:
             generated_image, generator_text_prompt = load_random_previously_generated_image()
-            display_image_on_frame(generated_image, generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
             last_creation_time = time.time()
 
 
@@ -257,11 +257,11 @@ if __name__ == '__main__':
                 except Exception as e:
                     print("A problem occurred at display_new_generated_image_w_same_prompt: ", e)
                     generated_image, generator_text_prompt = load_random_previously_generated_image()
-                display_image_on_frame(generated_image, generator_text_prompt)
+                display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
                 last_creation_time = time.time()
         else:
             generated_image, generator_text_prompt = load_random_previously_generated_image()
-            display_image_on_frame(generated_image, generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
             last_creation_time = time.time()
 
 
@@ -286,11 +286,11 @@ if __name__ == '__main__':
                 except Exception as e:
                     print("A problem occurred at display_new_generated_image_w_new_prompt: ", e)
                     generated_image, generator_text_prompt = load_random_previously_generated_image()
-                display_image_on_frame(generated_image, generator_text_prompt)
+                display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
                 last_creation_time = time.time()
         else:
             generated_image, generator_text_prompt = load_random_previously_generated_image()
-            display_image_on_frame(generated_image, generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
             last_creation_time = time.time()
 
 
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     #        except Exception as e:
     #            print("A problem occurred: ", e)
     #            generated_image, generator_text_prompt = load_random_previously_generated_image()
-    #        display_image_on_frame(generated_image, generator_text_prompt)
+    #        display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
 
     #        last_creation_time = time.time()
 
@@ -376,7 +376,7 @@ if __name__ == '__main__':
             threading.Timer(AUTOMATED_IMAGE_GENERATION_TIME, image_generation_timer).start()
         else:
             generated_image, generator_text_prompt = load_random_previously_generated_image()
-            display_image_on_frame(generated_image, generator_text_prompt)
+            display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
             last_creation_time = time.time()
             threading.Timer(AUTOMATED_IMAGE_GENERATION_TIME, image_generation_timer).start()
 
