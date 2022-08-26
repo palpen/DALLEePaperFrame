@@ -17,7 +17,7 @@ class FrameComposer:
         self.image_y = 13  # Vertical distance between top of display and top image border
         self.border_width = 7
 
-    def create_frame_image(self, image, text_prompt):
+    def create_frame_image(self, image, text_prompt, portrait_mode=False):
         """Generates the layout to display on the frame
 
         To quickly iterate on different types of layouts, see frame_composer_test.py
@@ -55,4 +55,6 @@ class FrameComposer:
             box=((self.width - image.width) // 2, self.image_y)
         )
 
+        if portrait_mode:
+            return base_image.rotate(90, fillcolor="white")
         return base_image

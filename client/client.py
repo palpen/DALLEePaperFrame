@@ -21,6 +21,7 @@ from buttons import set_button_function, wait_forever_for_button_presses
 from record_audio import record_audio
 
 DISPLAY_ON_FRAME_ENABLED = True  # Used for testing the client without having to load an image on the frame in each run
+PORTRAIT_MODE = True  # Sets the orientation of the display
 
 GENERATED_IMAGE_SIZE = 400  # Image size to pass to API (image returned is a square)
 MINIMUM_TIME_BETWEEN_IMAGE_GENERATIONS = 5
@@ -129,7 +130,7 @@ def display_image_on_frame(image, text_prompt):
         num_images_displayed = 0
 
     if DISPLAY_ON_FRAME_ENABLED:
-        frame_image = fc.create_frame_image(image, text_prompt)
+        frame_image = fc.create_frame_image(image, text_prompt, portrait_mode=PORTRAIT_MODE)
         display.set_image(frame_image)
         display.set_border(inky.BLACK)
         display.show()
