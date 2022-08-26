@@ -8,7 +8,8 @@ SERVER_IP_ADDR="10.0.0.87"
 # Command to run inside a screen session
 main_cmd="
     cd $PATH_TO_REPO/client && \
-    bash $PATH_TO_REPO/client/run_client.sh $SERVER_IP_ADDR $PATH_TO_REPO/config.yml
+    bash $PATH_TO_REPO/client/run_client.sh $SERVER_IP_ADDR $PATH_TO_REPO/config.yml ||
+    exec bash
 "
 
 # Command that starts a screen session in detached mode and runs $main_cmd
