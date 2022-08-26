@@ -38,5 +38,4 @@ client:
 
 tweets_utils:
   text_prompt_hashtag: "#dalle"
-  max_num_tweets_to_retrieve: 5
 

@@ -188,6 +188,7 @@ if __name__ == '__main__':
     prompts = config["client"]["prompts"]
     display_on_frame_enabled = config["client"]["display_on_frame_enabled"]
     portrait_mode = config["client"]["portrait_mode"]
+    text_prompt_hashtag = config["tweets_utils"]["text_prompt_hashtag"]
 
     generator_text_prompt = generate_sample_prompt(prompts, pre_prompts)
 
@@ -197,7 +198,14 @@ if __name__ == '__main__':
         print("Pressed display_new_generated_image_from_tweet button")
 
         # get text prompt from tweet
-        tweet_id, generator_text_prompt = tweets_utils.retrieve_most_recent_text_prompt(client=client, configs=twitter_api_keys)
+        (
+            tweet_id,
+            generator_text_prompt
+        ) = tweets_utils.retrieve_most_recent_text_prompt(
+            client=client,
+            configs=twitter_api_keys,
+            text_prompt_hashtag=text_prompt_hashtag
+        )
 
         if not generator_text_prompt:
             print(f"There are no recent tweets containing {tweets_utils.TEXT_PROMPT_HASHTAG}")
@@ -387,7 +395,9 @@ if __name__ == '__main__':
         then generate an image for it.
         """
         _, text_prompt = tweets_utils.retrieve_most_recent_text_prompt(
-            client=client, configs=twitter_api_keys
+            client=client,
+            configs=twitter_api_keys,
+            text_prompt_hashtag=text_prompt_hashtag
         )
         image_filename = os.path.join(
             SAVED_IMAGE_FOLDER,
