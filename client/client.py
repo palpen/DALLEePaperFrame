@@ -18,7 +18,6 @@ from PIL import Image
 import tweets_utils
 from frame_composer import FrameComposer
 from buttons import set_button_function, wait_forever_for_button_presses
-from record_audio import record_audio
 
 
 GENERATED_IMAGE_SIZE = 400  # Image size to pass to API (image returned is a square)
@@ -208,7 +207,7 @@ if __name__ == '__main__':
         )
 
         if not generator_text_prompt:
-            print(f"There are no recent tweets containing {tweets_utils.TEXT_PROMPT_HASHTAG}")
+            print(f"There are no recent tweets containing {text_prompt_hashtag}")
             generated_image, generator_text_prompt = load_random_previously_generated_image()
             display_image_on_frame(generated_image, generator_text_prompt, display_on_frame_enabled, portrait_mode)
             last_creation_time = time.time()
@@ -427,10 +426,8 @@ if __name__ == '__main__':
                 check_recent_tweets_and_generate_image_if_new
             ).start()
 
-
     image_generation_timer()
     check_recent_tweets_and_generate_image_if_new()
-
 
     # Wait forever for button presses (ie while true)
     print("Setup complete. Waiting for button presses...")
