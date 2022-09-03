@@ -3,7 +3,7 @@ client:
   display_on_frame_enabled: True  
   # Sets the orientation of the display
   # False displays the image in landscape mode
-  portrait_mode: True  
+  portrait_mode: False  
 
   pre_prompts:
       - 'a cartoon of'
