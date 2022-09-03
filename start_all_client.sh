@@ -10,9 +10,10 @@ for client_num in "$@"
     do
         echo "Running client in pi@raspberrypi$client_num.local ..."
 
-        # Command to run inside a screen session
+        # Commands to run inside a screen session
         main_cmd="
             cd $PATH_TO_REPO/client && \
+            git pull && \
             bash $PATH_TO_REPO/client/run_client.sh $SERVER_IP_ADDR $PATH_TO_REPO/config_rpi$client_num.yml ||
             exec bash
         "
